@@ -1,89 +1,102 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { ReactNode, useState } from "react";
 
-import { css, k } from "@kuma-ui/core";
+import { k } from "@kuma-ui/core";
 
-import { Button } from "@kuma-ui/core";
-import { Link } from "@kuma-ui/core";
-import { Image } from "@kuma-ui/core";
-import { Text } from "@kuma-ui/core";
+import { Box, Button } from "@kuma-ui/core";
+
+import CountdownTimer from "./CountdownTimer";
+
+type TimeAddButtonProps = {
+  children: ReactNode;
+  timeToChange: number;
+};
 
 function App() {
-  const [count, setCount] = useState(0);
+  const initialTime = 5 * 60; // Initial duration is 5 minute
+  const [totalTime, setTotalTime] = useState(initialTime);
+  const [isUpdateTime, setIsUpdateTime] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isReset, setIsReset] = useState(false);
+
+  const TimeAddButton = ({ children, timeToChange }: TimeAddButtonProps) => {
+    return (
+      <Button
+        border="2px solid #eba286"
+        borderRadius="1rem"
+        px="1.6rem"
+        py="0.8rem"
+        mx="0.5rem"
+        disabled={isRunning}
+        onClick={() => {
+          const appliedTime = totalTime + timeToChange;
+          setTotalTime(appliedTime >= 0 ? appliedTime : 0);
+          setIsUpdateTime(true);
+        }}
+      >
+        {children}
+      </Button>
+    );
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTotalTime(initialTime);
+    setIsReset(true);
+  };
 
   return (
-    <k.div maxWidth="1280px" m="0 auto" p="2rem" textAlign="center">
-      <div>
-        <Link href="https://vitejs.dev" target="_blank">
-          <Image
-            src={viteLogo}
-            height="6em"
-            padding="1.5em"
-            transition="filter 300ms"
-            _hover={{ filter: "drop-shadow(0 0 2em #646cffaa)" }}
-            alt="Vite logo"
-          />
-        </Link>
-        <Link href="https://react.dev" target="_blank">
-          <Image
-            src={reactLogo}
-            height="6em"
-            padding="1.5em"
-            transition="filter 300ms"
-            _hover={{ filter: "drop-shadow(0 0 2em #61dafbaa)" }}
-            alt="React logo"
-            className={css`
-              @keyframes logo-spin {
-                from {
-                  transform: rotate(0deg);
-                }
-                to {
-                  transform: rotate(360deg);
-                }
-              }
-              @media (prefers-reduced-motion: no-preference) {
-                animation: logo-spin infinite 20s linear;
-              }
-            `}
-          />
-        </Link>
-      </div>
-      <k.h1 fontSize="3.2em" lineHeight={1.1}>
-        Vite + React
-      </k.h1>
+    <div>
+      <Box
+        display="flex"
+        flexFlow="column"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CountdownTimer
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+          isUpdateTime={isUpdateTime}
+          setIsUpdateTime={setIsUpdateTime}
+          isReset={isReset}
+          setIsReset={setIsReset}
+          totalTime={totalTime}
+        />
 
-      <k.div p="2em">
         <Button
-          p="0.6em 1.2em"
-          fontSize="1em"
-          fontWeight={500}
-          fontFamily="inherit"
-          backgroundColor="#1a1a1a"
-          cursor="pointer"
-          borderRadius="8px"
-          border="1px solid transparent"
-          transition="border-color 0.25s"
-          _hover={{ borderColor: "#646cff" }}
-          _focus={{ outlineWidth: 4, outlineStyle: "auto" }}
-          _focus-visible={{ outlineWidth: 4, outlineStyle: "auto" }}
-          onClick={() => setCount((count) => count + 1)}
-          className={css`
-            @media (prefers-color-scheme: light) {
-              background-color: #f9f9f9 !important;
-            }
-          `}
+          border="2px solid #eba286"
+          borderRadius="1rem"
+          px="1.6rem"
+          py="0.8rem"
+          mt="2rem"
+          onClick={() => setIsRunning(!isRunning)}
         >
-          count is {count}
+          Click to Start
         </Button>
 
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </k.div>
+        <k.div mt="1rem">
+          <TimeAddButton timeToChange={60 * 0.5}>+0.5 Min</TimeAddButton>
+          <TimeAddButton timeToChange={60 * 1}>+1 Min</TimeAddButton>
+          <TimeAddButton timeToChange={60 * 5}>+5 Min</TimeAddButton>
+        </k.div>
+        <k.div mt="1rem">
+          <TimeAddButton timeToChange={60 * -0.5}>-0.5 Min</TimeAddButton>
+          <TimeAddButton timeToChange={60 * -1}>-1 Min</TimeAddButton>
+          <TimeAddButton timeToChange={60 * -5}>-5 Min</TimeAddButton>
+        </k.div>
 
-      <Text color="#888">Click on the Vite and React logos to learn more</Text>
-    </k.div>
+        <Button
+          border="2px solid #eba286"
+          borderRadius="1rem"
+          px="1.6rem"
+          py="0.8rem"
+          mt="1rem"
+          onClick={resetTimer}
+        >
+          Reset Timer
+        </Button>
+      </Box>
+    </div>
   );
 }
 
